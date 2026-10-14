@@ -1,12 +1,12 @@
 [package]
 name = "yarita"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
 chrono = "0.4.45"
 eframe = "0.36.2"
-yarita-protocol = { version = "0.1.0", path = "../protocol" }
+yarita-protocol = { version = "0.2.0", path = "../protocol" }
 notify-rust = "4.18.2"
 
 [build-dependencies]

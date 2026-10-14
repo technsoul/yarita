@@ -5,16 +5,16 @@ use std::process::Command;
 
 fn service_path() -> Result<PathBuf, String> {
     let exe = std::env::current_exe().map_err(|e| e.to_string())?;
-    let name = if cfg!(windows) { "focus-service.exe" } else { "focus-service" };
+    let name = if cfg!(windows) { "yarita-service.exe" } else { "yarita-service" };
     let path = exe.with_file_name(name);
     if path.exists() { Ok(path) } else { Err(format!("{} not found", path.display())) }
 }
 
-/// Launch the service. In development (`FOCUS_HOSTS_FILE` set) it runs
+/// Launch the service. In development (`YARITA_HOSTS_FILE` set) it runs
 /// without elevation so the environment overrides are inherited.
 pub fn start_service() -> Result<(), String> {
     let path = service_path()?;
-    let dev = std::env::var_os("FOCUS_HOSTS_FILE").is_some();
+    let dev = std::env::var_os("YARITA_HOSTS_FILE").is_some();
     let mut command = if dev { Command::new(&path) } else { elevated(&path) };
     hide_console(&mut command);
     command.spawn().map(drop).map_err(|e| format!("Could not start the service: {e}"))

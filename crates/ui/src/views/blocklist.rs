@@ -1,5 +1,5 @@
 use eframe::egui::{self, RichText};
-use focus_protocol::{Request, Snapshot};
+use yarita_protocol::{Request, Snapshot};
 
 use super::lockable_button;
 use crate::app::FocusUi;
@@ -21,6 +21,16 @@ pub fn show(app: &mut FocusUi, ui: &mut egui::Ui, snap: &Snapshot) {
         let edit =
             section(ui, "Websites", "youtube.com", &mut app.site_input, SITE_SUGGESTIONS, &snap.sites, snap.locked);
         edit.send(app, Request::AddSite, Request::RemoveSite);
+        if cfg!(windows) {
+            ui.label(
+                RichText::new(
+                    "Works in Chrome, Edge, Brave, Chromium and Firefox. Other browsers, like Opera and \
+                     Vivaldi, can't open while websites are blocked.",
+                )
+                .small()
+                .weak(),
+            );
+        }
     });
 
     ui.add_space(16.0);

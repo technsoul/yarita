@@ -2,10 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>Focus Timer</string>
-    <key>CFBundleDisplayName</key><string>Focus Timer</string>
-    <key>CFBundleIdentifier</key><string>com.technsoul.focustimer</string>
-    <key>CFBundleExecutable</key><string>focus-ui</string>
+    <key>CFBundleName</key><string>Yarita</string>
+    <key>CFBundleDisplayName</key><string>Yarita</string>
+    <key>CFBundleIdentifier</key><string>com.technsoul.yarita</string>
+    <key>CFBundleExecutable</key><string>yarita</string>
+    <key>CFBundleIconFile</key><string>icon</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleVersion</key><string>__VERSION__</string>
     <key>CFBundleShortVersionString</key><string>__VERSION__</string>

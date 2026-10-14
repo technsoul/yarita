@@ -1,7 +1,7 @@
 //! Outbound ports the use cases need from the outside world.
 
-use focus_domain::Timestamp;
-use focus_domain::blocklist::{AppName, Site};
+use yarita_domain::Timestamp;
+use yarita_domain::blocklist::{AppName, Site};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PortError(pub String);
@@ -22,6 +22,11 @@ pub trait Clock: Send {
 pub trait SiteBlocker: Send {
     fn block(&mut self, sites: &[Site]) -> Result<(), PortError>;
     fn unblock_all(&mut self) -> Result<(), PortError>;
+    /// Apps that would get around this blocker, such as browsers that ignore
+    /// its policies. They are blocked like the user's apps while sites are.
+    fn bypassing_apps(&self) -> Vec<AppName> {
+        Vec::new()
+    }
 }
 
 /// Stops blocked apps from running. Same idempotency rule as [`SiteBlocker`].

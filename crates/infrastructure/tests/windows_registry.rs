@@ -3,16 +3,16 @@
 
 use std::path::Path;
 
-use focus_application::ports::{AppBlocker, SiteBlocker};
-use focus_domain::blocklist::{AppName, Site};
-use focus_infrastructure::{BrowserPolicyBlocker, LaunchBlocker, Registry};
+use yarita_application::ports::{AppBlocker, SiteBlocker};
+use yarita_domain::blocklist::{AppName, Site};
+use yarita_infrastructure::{BrowserPolicyBlocker, LaunchBlocker, Registry};
 use windows_registry::CURRENT_USER;
 
 struct Sandbox(String);
 
 impl Sandbox {
     fn new(name: &str) -> Self {
-        Sandbox(format!(r"Software\FocusTimerTest\{name}-{}", std::process::id()))
+        Sandbox(format!(r"Software\YaritaTest\{name}-{}", std::process::id()))
     }
     fn registry(&self) -> Registry {
         Registry::new(Some(self.0.clone()))
@@ -79,12 +79,12 @@ fn launch_blocks_are_set_and_removed_without_touching_other_settings() {
     // Someone else's debugger is left alone.
     sb.create(&format!(r"{IFEO}\code.exe")).set_string("Debugger", "vsjitdebugger.exe").unwrap();
 
-    let helper = Path::new(r"C:\Focus\focus-service.exe");
+    let helper = Path::new(r"C:\Yarita\yarita-service.exe");
     let apps: Vec<AppName> = ["Steam", "discord", "code", "explorer"].iter().map(|a| AppName::parse(a).unwrap()).collect();
     let mut blocker = LaunchBlocker::new(sb.registry(), helper);
     blocker.enforce(&apps).unwrap();
 
-    let debugger = r#""C:\Focus\focus-service.exe" --blocked"#;
+    let debugger = r#""C:\Yarita\yarita-service.exe" --blocked"#;
     for exe in ["steam.exe", "discord.exe"] {
         assert_eq!(sb.key(&format!(r"{IFEO}\{exe}")).unwrap().get_string("Debugger").unwrap(), debugger, "{exe}");
     }

@@ -1,5 +1,5 @@
-use focus_application::FocusApp;
-use focus_protocol::{Request, Response};
+use yarita_application::FocusApp;
+use yarita_protocol::{Request, Response};
 
 /// Maps one wire request onto a use case.
 pub fn handle(app: &mut FocusApp, request: Request) -> Response {

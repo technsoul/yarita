@@ -8,7 +8,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use eframe::egui;
-use focus_protocol::{Request, Response, SERVICE_ADDR, Snapshot, read_message, write_message};
+use yarita_protocol::{Request, Response, SERVICE_ADDR, Snapshot, read_message, write_message};
 
 const POLL_EVERY: Duration = Duration::from_millis(500);
 

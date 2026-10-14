@@ -1,7 +1,7 @@
 use eframe::egui::{
     self, Color32, CornerRadius, FontFamily, FontId, Margin, Stroke, TextStyle, Theme, ThemePreference, vec2,
 };
-use focus_protocol::PhaseDto;
+use yarita_protocol::PhaseDto;
 
 pub const BG: Color32 = Color32::from_rgb(0x0B, 0x0C, 0x0E);
 pub const WELL: Color32 = Color32::from_rgb(0x05, 0x05, 0x06);

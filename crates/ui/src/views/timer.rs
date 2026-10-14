@@ -1,5 +1,5 @@
 use eframe::egui::{self, Align, Layout, RichText};
-use focus_protocol::{PhaseDto, Request, Snapshot, StatusDto};
+use yarita_protocol::{PhaseDto, Request, Snapshot, StatusDto};
 
 use crate::app::{FocusUi, Tab};
 use crate::theme;

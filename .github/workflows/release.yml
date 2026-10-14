@@ -24,14 +24,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build
-        run: cargo build --release -p focus-ui -p focus-service
+        run: cargo build --release -p yarita -p yarita-service
       - name: Build installer
         shell: pwsh
         run: |
           $version = "$env:TAG".TrimStart('v')
           choco install innosetup --no-progress -y
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DSourceDir=$PWD\target\release" "/DOutputDir=$PWD\dist" packaging\windows\installer.iss
-          Compress-Archive -Path target\release\focus-ui.exe, target\release\focus-service.exe -DestinationPath "dist\FocusTimer-$version-windows-x64-portable.zip"
+          Compress-Archive -Path target\release\yarita.exe, target\release\yarita-service.exe -DestinationPath "dist\Yarita-$version-windows-x64-portable.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -52,9 +52,9 @@ jobs:
         run: cargo install cargo-deb --locked
       - name: Build .deb
         run: |
-          cargo build --release -p focus-ui -p focus-service
+          cargo build --release -p yarita -p yarita-service
           mkdir -p dist
-          cargo deb -p focus-ui --no-build --deb-version "${TAG#v}" -o dist/
+          cargo deb -p yarita --no-build --deb-version "${TAG#v}" -o dist/
       - uses: actions/upload-artifact@v4
         with:
           name: linux
@@ -71,22 +71,23 @@ jobs:
       - name: Build universal binaries
         run: |
           for t in aarch64-apple-darwin x86_64-apple-darwin; do
-            cargo build --release -p focus-ui -p focus-service --target "$t"
+            cargo build --release -p yarita -p yarita-service --target "$t"
           done
       - name: Build .dmg
         run: |
           version="${TAG#v}"
-          app="dmg/Focus Timer.app"
-          mkdir -p "$app/Contents/MacOS" dist
-          for bin in focus-ui focus-service; do
+          app="dmg/Yarita.app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" dist
+          cp crates/ui/assets/icon.icns "$app/Contents/Resources/icon.icns"
+          for bin in yarita yarita-service; do
             lipo -create -output "$app/Contents/MacOS/$bin" \
               "target/aarch64-apple-darwin/release/$bin" "target/x86_64-apple-darwin/release/$bin"
           done
           sed "s/__VERSION__/$version/g" packaging/macos/Info.plist > "$app/Contents/Info.plist"
           codesign --force --deep --sign - "$app"
           ln -s /Applications dmg/Applications
-          hdiutil create -volname "Focus Timer" -srcfolder dmg -ov -format UDZO \
-            "dist/FocusTimer-$version-macos-universal.dmg"
+          hdiutil create -volname "Yarita" -srcfolder dmg -ov -format UDZO \
+            "dist/Yarita-$version-macos-universal.dmg"
       - uses: actions/upload-artifact@v4
         with:
           name: macos
@@ -103,6 +104,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
-          name: Focus Timer ${{ env.TAG }}
+          name: Yarita ${{ env.TAG }}
           generate_release_notes: true
           files: dist/*

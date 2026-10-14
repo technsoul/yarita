@@ -8,11 +8,11 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-use focus_application::ports::{PortError, SiteBlocker};
-use focus_domain::blocklist::Site;
+use yarita_application::ports::{PortError, SiteBlocker};
+use yarita_domain::blocklist::Site;
 
-const BEGIN: &str = "# >>> focus-timer (managed by Focus Timer, do not edit)";
-const END: &str = "# <<< focus-timer";
+const BEGIN: &str = "# >>> yarita (managed by Yarita, do not edit)";
+const END: &str = "# <<< yarita";
 
 pub struct HostsFileBlocker {
     path: PathBuf,

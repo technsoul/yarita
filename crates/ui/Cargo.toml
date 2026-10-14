@@ -1,23 +1,27 @@
 [package]
-name = "focus-ui"
+name = "yarita"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 chrono = "0.4.45"
 eframe = "0.36.2"
-focus-protocol = { version = "0.1.0", path = "../protocol" }
+yarita-protocol = { version = "0.1.0", path = "../protocol" }
 notify-rust = "4.18.2"
 
+[build-dependencies]
+embed-resource = "3.0.12"
+
 [package.metadata.deb]
-name = "focus-timer"
+name = "yarita"
 maintainer = "Eng-Abdelwahab-mo"
 copyright = "MIT"
 extended-description = "A minimal Pomodoro timer that blocks websites and apps while you focus."
 section = "utils"
 depends = "$auto"
 assets = [
-    ["target/release/focus-ui", "usr/bin/", "755"],
-    ["target/release/focus-service", "usr/bin/", "755"],
-    ["packaging/focus-timer.desktop", "usr/share/applications/", "644"],
+    ["target/release/yarita", "usr/bin/", "755"],
+    ["target/release/yarita-service", "usr/bin/", "755"],
+    ["packaging/yarita.desktop", "usr/share/applications/", "644"],
+    ["assets/icon-256.png", "usr/share/icons/hicolor/256x256/apps/yarita.png", "644"],
 ]

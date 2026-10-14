@@ -4,7 +4,7 @@
 //! sandbox moves everything under `HKEY_CURRENT_USER\<sandbox>\`, where
 //! nothing reads it, so the real system is left alone.
 
-use focus_application::ports::PortError;
+use yarita_application::ports::PortError;
 use windows_registry::{CURRENT_USER, Key, LOCAL_MACHINE};
 
 /// `ERROR_FILE_NOT_FOUND` as an HRESULT.

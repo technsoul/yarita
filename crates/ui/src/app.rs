@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
-use eframe::egui::{self, Align, Frame, Layout, Margin, RichText, Sense, Stroke, StrokeKind, vec2};
-use focus_protocol::{ConfigDto, PhaseDto, Request, Snapshot};
+use eframe::egui::{self, Align, Color32, Frame, Layout, Margin, RichText, Sense, Stroke, StrokeKind, vec2};
+use yarita_protocol::{ConfigDto, PhaseDto, Request, Snapshot};
 
 use crate::client::ServiceClient;
 use crate::widgets::{self, Icon};
@@ -90,7 +90,7 @@ impl FocusUi {
             PhaseDto::LongBreak => ("Cycle complete", "Great job. Time for a long break."),
         };
         std::thread::spawn(move || {
-            let _ = notify_rust::Notification::new().appname("Focus Timer").summary(title).body(body).show();
+            let _ = notify_rust::Notification::new().appname("Yarita").summary(title).body(body).show();
         });
         ctx.send_viewport_cmd(egui::ViewportCommand::RequestUserAttention(egui::UserAttentionType::Informational));
     }
@@ -128,7 +128,7 @@ impl eframe::App for FocusUi {
         if locked && ctx.input(|i| i.viewport().close_requested()) {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
             self.client.with_state(|s| {
-                s.refusal = Some(("Strict mode is on: Focus Timer stays open until this session ends.".into(), Instant::now()));
+                s.refusal = Some(("Strict mode is on: Yarita stays open until this session ends.".into(), Instant::now()));
             });
             ctx.request_repaint();
         }
@@ -229,9 +229,9 @@ impl FocusUi {
                 ui.horizontal(|ui| {
                     ui.add_space(6.0);
                     let (rect, _) = ui.allocate_exact_size(vec2(34.0, 34.0), Sense::hover());
-                    ui.painter().rect_filled(rect, 11, theme::ACCENT);
-                    widgets::paint_icon(ui.painter(), Icon::Timer, rect.shrink(8.0), theme::BG);
-                    ui.label(RichText::new("Focus Timer").size(17.0).strong().color(theme::TEXT));
+                    ui.painter().rect(rect, 8, Color32::BLACK, Stroke::new(1.0, theme::BORDER_STRONG), StrokeKind::Inside);
+                    widgets::paint_logo(ui.painter(), rect, Color32::WHITE);
+                    ui.label(RichText::new("Yarita").size(17.0).strong().color(theme::TEXT));
                 });
                 ui.add_space(22.0);
 

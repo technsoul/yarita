@@ -5,12 +5,12 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use focus_domain::blocklist::Blocklist;
-use focus_domain::repositories::{
+use yarita_domain::blocklist::Blocklist;
+use yarita_domain::repositories::{
     BlocklistRepository, FocusRecordRepository, RepositoryError, TimerRepository,
 };
-use focus_domain::session::PomodoroTimer;
-use focus_domain::stats::FocusRecord;
+use yarita_domain::session::PomodoroTimer;
+use yarita_domain::stats::FocusRecord;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
@@ -97,14 +97,14 @@ impl FocusRecordRepository for JsonStore {
 
 #[cfg(test)]
 mod tests {
-    use focus_domain::Timestamp;
-    use focus_domain::blocklist::Site;
-    use focus_domain::session::TimerConfig;
+    use yarita_domain::Timestamp;
+    use yarita_domain::blocklist::Site;
+    use yarita_domain::session::TimerConfig;
 
     use super::*;
 
     fn temp_dir(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("focus-timer-test-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("yarita-test-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         dir
     }

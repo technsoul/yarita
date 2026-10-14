@@ -1,12 +1,13 @@
-# Focus Timer
+# Yarita
 
 A minimal, cross-platform Pomodoro timer that blocks websites and apps while you focus.
 Built in Rust with [egui](https://github.com/emilk/egui), structured with Domain-Driven Design.
 
 - **Pomodoro cycle:** focus, short break and long break, all configurable
 - **Website blocking:** system-wide, through the hosts file, so it works in every browser.
-  On Windows, browser policies are added too (Chrome, Edge, Brave, Firefox): they block every
+  On Windows, browser policies are added too (Chrome, Edge, Brave, Chromium, Firefox): they block every
   subdomain and turn off secure DNS (DNS over HTTPS) so browsers can't skip the hosts file.
+  Browsers that ignore these policies (Opera, Vivaldi, …) can't open while sites are blocked.
 - **App blocking:** on Windows, blocked apps can't start at all (Image File Execution Options).
   Apps that are already running, or have been renamed, are closed.
 - **Strict mode:** no pausing, stopping, unblocking or changing settings until the session ends.
@@ -41,19 +42,19 @@ can't get around strict mode.
 ## Run in development (no admin needed)
 
 Development uses a fake hosts file, a local state folder and a registry sandbox
-(`HKCU\Software\FocusTimerDev`, which browsers and Windows ignore), so your real system isn't touched:
+(`HKCU\Software\YaritaDev`, which browsers and Windows ignore), so your real system isn't touched:
 
 ```powershell
-$env:FOCUS_HOSTS_FILE = "$PWD\.dev-data\hosts"
-$env:FOCUS_DATA_DIR   = "$PWD\.dev-data\state"
-$env:FOCUS_REGISTRY_SANDBOX = "Software\FocusTimerDev"
+$env:YARITA_HOSTS_FILE = "$PWD\.dev-data\hosts"
+$env:YARITA_DATA_DIR   = "$PWD\.dev-data\state"
+$env:YARITA_REGISTRY_SANDBOX = "Software\YaritaDev"
 New-Item -ItemType Directory -Force .dev-data | Out-Null
 if (-not (Test-Path .dev-data\hosts)) { Set-Content .dev-data\hosts "127.0.0.1 localhost" }
 cargo build
-cargo run -p focus-ui
+cargo run -p yarita
 ```
 
-The UI starts the service automatically. When `FOCUS_HOSTS_FILE` is set, it starts the service
+The UI starts the service automatically. When `YARITA_HOSTS_FILE` is set, it starts the service
 without asking for elevation.
 
 ## Run for real
@@ -62,14 +63,14 @@ without asking for elevation.
 cargo build --release
 ```
 
-Run `target/release/focus-ui` and keep `focus-service` in the same folder.
+Run `target/release/yarita` and keep `yarita-service` in the same folder.
 On first launch you'll get one admin prompt (UAC on Windows, a password prompt on macOS, pkexec on Linux).
 
 | | Hosts file | State |
 |---|---|---|
-| Windows | `C:\Windows\System32\drivers\etc\hosts` | `C:\ProgramData\FocusTimer` |
-| macOS | `/etc/hosts` | `/Library/Application Support/FocusTimer` |
-| Linux | `/etc/hosts` | `/var/lib/focus-timer` |
+| Windows | `C:\Windows\System32\drivers\etc\hosts` | `C:\ProgramData\yarita` |
+| macOS | `/etc/hosts` | `/Library/Application Support/yarita` |
+| Linux | `/etc/hosts` | `/var/lib/yarita` |
 
 ## Tests
 
@@ -83,14 +84,15 @@ cargo test --workspace
 |---|---|---|
 | Websites | `hosts` file | Every browser and app |
 | Websites | `HKLM\SOFTWARE\Policies\…` `URLBlocklist` (Chromium), `WebsiteFilter` (Firefox) | Covers subdomains. Firefox only picks it up after a restart. While blocking, the browser says it is "managed by your organization". |
+| Other browsers | Blocked like apps while any site is blocked | Opera, Vivaldi, Arc, Waterfox, LibreWolf and others that ignore these policies |
 | Secure DNS | `DnsOverHttpsMode = off` (Chromium) | Restored to the previous value afterwards |
-| Apps | `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\<app>.exe` → `Debugger` | Windows runs `focus-service --blocked` instead of the app, which shows a message |
+| Apps | `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\<app>.exe` → `Debugger` | Windows runs `yarita-service --blocked` instead of the app, which shows a message |
 | Apps | process list | Closes running and renamed apps every second |
 
 Only entries the app added are removed. Your own policies, and Windows' own IFEO settings, stay put.
-What was added is remembered in `HKLM\SOFTWARE\FocusTimer` and in marker values, so a crash or
+What was added is remembered in `HKLM\SOFTWARE\Yarita` and in marker values, so a crash or
 reboot is cleaned up the next time the service starts. Windows components, shells, `regedit` and
-Focus Timer itself are never blocked at launch.
+Yarita itself are never blocked at launch.
 
 ## Known limits
 

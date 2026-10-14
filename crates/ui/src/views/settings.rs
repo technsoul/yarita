@@ -1,5 +1,5 @@
 use eframe::egui::{self, RichText};
-use focus_protocol::{Request, Snapshot};
+use yarita_protocol::{Request, Snapshot};
 
 use crate::app::FocusUi;
 use crate::theme;
@@ -45,8 +45,8 @@ pub fn show(app: &mut FocusUi, ui: &mut egui::Ui, snap: &Snapshot) {
         super::card_title(ui, "About blocking");
         ui.label(
             RichText::new(
-                "Websites are blocked through the hosts file and browser policies (Chrome, Edge, Brave and \
-             Firefox). Blocked apps can't open during a focus session, and running ones are closed. \
+                "Websites are blocked through the hosts file and browser policies (Chrome, Edge, Brave, \
+             Chromium and Firefox). Other browsers can't open while websites are blocked. Blocked apps can't open during a focus session, and running ones are closed. \
              A background service does this, so it keeps working when this window is closed. \
              Firefox needs a restart to pick up the browser policy.",
             )

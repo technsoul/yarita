@@ -8,12 +8,33 @@
 //!
 //! Users may have their own policies, so the blocker only removes entries it
 //! added. What it added, and any value it replaced, is remembered under
-//! `HKLM\SOFTWARE\FocusTimer\BrowserPolicy`, which survives crashes and reboots.
+//! `HKLM\SOFTWARE\Yarita\BrowserPolicy`, which survives crashes and reboots.
+//!
+//! Browsers that don't read these policies would get around them, so while
+//! sites are blocked they are blocked from running too ([`UNSUPPORTED_BROWSERS`]).
 //!
 //! Chromium browsers pick up changes within seconds. Firefox reads policies
 //! at startup, so it needs a restart; the hosts file covers it until then.
 
-use focus_domain::blocklist::Site;
+use yarita_domain::blocklist::{AppName, Site};
+
+/// Exe names of browsers that ignore the policies below. Browsers that share
+/// an exe name with a supported one (Tor Browser and Cent use `firefox.exe`
+/// and `chrome.exe`) can't be told apart here; the hosts file still covers them.
+pub const UNSUPPORTED_BROWSERS: &[&str] = &[
+    // Chromium-based
+    "opera", "vivaldi", "arc", "thorium", "iridium", "epic", "slimjet", "dragon", "maxthon",
+    "ucbrowser", "avastbrowser", "avgbrowser", "ccleanerbrowser", "sidekick", "duckduckgo",
+    "yandex", "coccoc", "browser360", "360chrome", "qqbrowser", "sogouexplorer",
+    // Firefox-based
+    "waterfox", "librewolf", "floorp", "zen", "mullvadbrowser", "palemoon", "basilisk", "seamonkey",
+    // Other engines
+    "iexplore", "falkon", "qutebrowser", "midori", "ladybird", "min",
+];
+
+pub fn unsupported_browsers() -> Vec<AppName> {
+    UNSUPPORTED_BROWSERS.iter().filter_map(|name| AppName::parse(name).ok()).collect()
+}
 
 /// Returns `existing` without the entries we added last time (`owned`), plus
 /// `ours`. Entries the user added stay in their original order, even when one
@@ -47,14 +68,14 @@ pub use imp::BrowserPolicyBlocker;
 
 #[cfg(windows)]
 mod imp {
-    use focus_application::ports::{PortError, SiteBlocker};
-    use focus_domain::blocklist::Site;
+    use yarita_application::ports::{PortError, SiteBlocker};
+    use yarita_domain::blocklist::{AppName, Site};
     use windows_registry::Key;
 
     use super::{chromium_pattern, firefox_pattern, merge_list};
     use crate::registry::{self, Registry, View};
 
-    const STATE_KEY: &str = r"SOFTWARE\FocusTimer\BrowserPolicy";
+    const STATE_KEY: &str = r"SOFTWARE\Yarita\BrowserPolicy";
 
     struct Browser {
         /// Prefix for the values we keep under [`STATE_KEY`].
@@ -78,6 +99,13 @@ mod imp {
         Browser {
             id: "Edge",
             policy_key: r"SOFTWARE\Policies\Microsoft\Edge",
+            list_key: "URLBlocklist",
+            pattern: chromium_pattern,
+            chromium: true,
+        },
+        Browser {
+            id: "Chromium",
+            policy_key: r"SOFTWARE\Policies\Chromium",
             list_key: "URLBlocklist",
             pattern: chromium_pattern,
             chromium: true,
@@ -214,6 +242,10 @@ mod imp {
         fn unblock_all(&mut self) -> Result<(), PortError> {
             self.sync(&[])
         }
+
+        fn bypassing_apps(&self) -> Vec<AppName> {
+            super::unsupported_browsers()
+        }
     }
 
     /// Browsers read list policies as values named "1", "2", … with no gaps.
@@ -265,6 +297,15 @@ mod tests {
         let ours = v(&["a.com", "b.com"]);
         let once = merge_list(&v(&["corp.com"]), &[], &ours);
         assert_eq!(merge_list(&once, &ours, &ours), once);
+    }
+
+    #[test]
+    fn unsupported_browsers_parse_and_exclude_supported_ones() {
+        let apps = unsupported_browsers();
+        assert_eq!(apps.len(), UNSUPPORTED_BROWSERS.len(), "every name is a valid app name");
+        for supported in ["chrome", "msedge", "brave", "firefox"] {
+            assert!(!apps.iter().any(|a| a.as_str() == supported), "{supported}");
+        }
     }
 
     #[test]

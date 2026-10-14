@@ -1,4 +1,4 @@
-//! `focus-service --blocked <app path> …`: what Windows runs instead of a
+//! `yarita-service --blocked <app path> …`: what Windows runs instead of a
 //! blocked app (see the launch blocker). Tells the user and exits.
 
 use std::io::{BufReader, BufWriter};
@@ -6,7 +6,7 @@ use std::net::TcpStream;
 use std::path::Path;
 use std::time::Duration;
 
-use focus_protocol::{Request, Response, SERVICE_ADDR, read_message, write_message};
+use yarita_protocol::{Request, Response, SERVICE_ADDR, read_message, write_message};
 
 pub fn run(mut args: impl Iterator<Item = String>) {
     let app = args
@@ -16,7 +16,7 @@ pub fn run(mut args: impl Iterator<Item = String>) {
         .unwrap_or_else(|| "This app".into());
     let detail = match remaining_minutes() {
         Some(m) => format!("{m} min left in this focus session."),
-        None => "Open Focus Timer to see your session.".into(),
+        None => "Open Yarita to see your session.".into(),
     };
     show(&format!("{app} is blocked while you focus.\n\n{detail}"));
 }
@@ -37,7 +37,7 @@ fn show(text: &str) {
         MB_ICONINFORMATION, MB_OK, MB_SETFOREGROUND, MB_TOPMOST, MessageBoxW,
     };
     let wide = |s: &str| s.encode_utf16().chain(Some(0)).collect::<Vec<u16>>();
-    let (text, title) = (wide(text), wide("Focus Timer"));
+    let (text, title) = (wide(text), wide("Yarita"));
     unsafe {
         MessageBoxW(
             std::ptr::null_mut(),

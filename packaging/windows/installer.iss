@@ -11,34 +11,35 @@
 
 [Setup]
 AppId={{6C1F4E2B-8A3D-4F5E-9B7A-2D4C6E8F0A1B}
-AppName=Focus Timer
+AppName=Yarita
 AppVersion={#AppVersion}
 AppPublisher=technsoul
-DefaultDirName={autopf}\Focus Timer
-DefaultGroupName=Focus Timer
+DefaultDirName={autopf}\Yarita
+DefaultGroupName=Yarita
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir={#OutputDir}
-OutputBaseFilename=FocusTimer-{#AppVersion}-windows-x64-setup
+OutputBaseFilename=Yarita-{#AppVersion}-windows-x64-setup
 Compression=lzma2
 SolidCompression=yes
-UninstallDisplayIcon={app}\focus-ui.exe
+UninstallDisplayIcon={app}\yarita.exe
+SetupIconFile=..\..\crates\ui\assets\icon.ico
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "{#SourceDir}\focus-ui.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\focus-service.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\yarita.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\yarita-service.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Focus Timer"; Filename: "{app}\focus-ui.exe"
-Name: "{autodesktop}\Focus Timer"; Filename: "{app}\focus-ui.exe"; Tasks: desktopicon
+Name: "{group}\Yarita"; Filename: "{app}\yarita.exe"
+Name: "{autodesktop}\Yarita"; Filename: "{app}\yarita.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\focus-ui.exe"; Description: "{cm:LaunchProgram,Focus Timer}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\yarita.exe"; Description: "{cm:LaunchProgram,Yarita}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "taskkill.exe"; Parameters: "/F /IM focus-ui.exe"; Flags: runhidden; RunOnceId: "KillUi"
-Filename: "taskkill.exe"; Parameters: "/F /IM focus-service.exe"; Flags: runhidden; RunOnceId: "KillService"
+Filename: "taskkill.exe"; Parameters: "/F /IM yarita.exe"; Flags: runhidden; RunOnceId: "KillUi"
+Filename: "taskkill.exe"; Parameters: "/F /IM yarita-service.exe"; Flags: runhidden; RunOnceId: "KillService"

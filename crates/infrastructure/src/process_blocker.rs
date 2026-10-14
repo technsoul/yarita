@@ -2,8 +2,8 @@
 
 use std::path::Path;
 
-use focus_application::ports::{AppBlocker, PortError};
-use focus_domain::blocklist::AppName;
+use yarita_application::ports::{AppBlocker, PortError};
+use yarita_domain::blocklist::AppName;
 use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
 pub struct ProcessBlocker {

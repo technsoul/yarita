@@ -1,14 +1,14 @@
 use std::fmt;
 
-use focus_domain::DomainError;
-use focus_domain::blocklist::{AppName, Blocklist, Site};
-use focus_domain::events::DomainEvent;
-use focus_domain::repositories::{
+use yarita_domain::DomainError;
+use yarita_domain::blocklist::{AppName, Blocklist, Site};
+use yarita_domain::events::DomainEvent;
+use yarita_domain::repositories::{
     BlocklistRepository, FocusRecordRepository, RepositoryError, TimerRepository,
 };
-use focus_domain::session::{Phase, PomodoroTimer, TimerConfig};
-use focus_domain::stats::{FocusRecord, StatsSummary};
-use focus_protocol::{ConfigDto, Snapshot};
+use yarita_domain::session::{Phase, PomodoroTimer, TimerConfig};
+use yarita_domain::stats::{FocusRecord, StatsSummary};
+use yarita_protocol::{ConfigDto, Snapshot};
 
 use crate::mapping;
 use crate::ports::{AppBlocker, Clock, SiteBlocker};
@@ -221,7 +221,12 @@ impl FocusApp {
     fn enforce(&mut self) {
         let result = if self.timer.is_blocking() {
             let sites: Vec<Site> = self.blocklist.sites().cloned().collect();
-            let apps: Vec<AppName> = self.blocklist.apps().cloned().collect();
+            let mut apps: Vec<AppName> = self.blocklist.apps().cloned().collect();
+            if !sites.is_empty() {
+                apps.extend(self.deps.sites.bypassing_apps());
+                apps.sort();
+                apps.dedup();
+            }
             self.deps.sites.block(&sites).and_then(|()| self.deps.apps.enforce(&apps).map(drop))
         } else {
             // Run both so one failure doesn't leave the other side blocked.
@@ -238,8 +243,8 @@ mod tests {
     use std::sync::atomic::{AtomicI64, Ordering};
     use std::sync::{Arc, Mutex};
 
-    use focus_domain::Timestamp;
-    use focus_protocol::StatusDto;
+    use yarita_domain::Timestamp;
+    use yarita_protocol::StatusDto;
 
     use super::*;
     use crate::ports::PortError;
@@ -271,6 +276,9 @@ mod tests {
         fn unblock_all(&mut self) -> Result<(), PortError> {
             self.blocked_sites.lock().unwrap().clear();
             Ok(())
+        }
+        fn bypassing_apps(&self) -> Vec<AppName> {
+            vec![AppName::parse("opera").unwrap()]
         }
     }
     impl AppBlocker for World {
@@ -337,7 +345,7 @@ mod tests {
         assert_eq!(*w.blocked_sites.lock().unwrap(), ["youtube.com"]);
         assert!(w.killed.lock().unwrap().contains(&"steam".to_string()));
 
-        assert_eq!(*w.launch_blocked.lock().unwrap(), ["steam"]);
+        assert_eq!(*w.launch_blocked.lock().unwrap(), ["opera", "steam"], "browsers that bypass site blocking too");
 
         w.now.store(25 * 60, Ordering::SeqCst);
         a.tick();
@@ -347,6 +355,15 @@ mod tests {
         assert_eq!(s.status, StatusDto::Idle);
         assert_eq!(s.stats.total_sessions, 1);
         assert_eq!(s.completions, 1);
+    }
+
+    #[test]
+    fn bypassing_browsers_are_only_blocked_with_sites() {
+        let w = World::default();
+        let mut a = app(&w);
+        a.add_app("steam").unwrap();
+        a.start().unwrap();
+        assert_eq!(*w.launch_blocked.lock().unwrap(), ["steam"], "no sites, so other browsers are fine");
     }
 
     #[test]

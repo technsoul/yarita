@@ -1,6 +1,6 @@
-use focus_domain::session::{Phase, TimerConfig, TimerState};
-use focus_domain::stats::StatsSummary;
-use focus_protocol::{ConfigDto, PhaseDto, StatsDto, StatusDto};
+use yarita_domain::session::{Phase, TimerConfig, TimerState};
+use yarita_domain::stats::StatsSummary;
+use yarita_protocol::{ConfigDto, PhaseDto, StatsDto, StatusDto};
 
 pub fn phase(p: Phase) -> PhaseDto {
     match p {

@@ -17,12 +17,12 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{process, thread};
 
-use focus_application::ports::AppBlocker;
-use focus_application::{Dependencies, FocusApp};
-use focus_infrastructure::{
+use yarita_application::ports::AppBlocker;
+use yarita_application::{Dependencies, FocusApp};
+use yarita_infrastructure::{
     AppBlockers, BLOCKED_FLAG, HostsFileBlocker, JsonStore, ProcessBlocker, SiteBlockers, SystemClock, paths,
 };
-use focus_protocol::{Request, SERVICE_ADDR, read_message, write_message};
+use yarita_protocol::{Request, SERVICE_ADDR, read_message, write_message};
 
 type SharedApp = Arc<Mutex<FocusApp>>;
 
@@ -41,7 +41,7 @@ fn main() {
     let listener = match TcpListener::bind(SERVICE_ADDR) {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("focus-service: {SERVICE_ADDR} is in use ({e}); another instance is probably running");
+            eprintln!("yarita-service: {SERVICE_ADDR} is in use ({e}); another instance is probably running");
             process::exit(0);
         }
     };
@@ -49,7 +49,7 @@ fn main() {
     let data_dir = paths::data_dir();
     let store = JsonStore::open(&data_dir).unwrap_or_else(|e| fail(&e.to_string()));
     let (hosts_path, flush_dns) = paths::hosts_file();
-    eprintln!("focus-service: data in {}, hosts file {}", data_dir.display(), hosts_path.display());
+    eprintln!("yarita-service: data in {}, hosts file {}", data_dir.display(), hosts_path.display());
 
     let app = FocusApp::load(Dependencies {
         timers: Box::new(store.clone()),
@@ -72,7 +72,7 @@ fn main() {
     let watched = (Arc::clone(&app), Arc::clone(&clients));
     thread::spawn(move || keep_ui_open(&watched.0, &watched.1));
 
-    eprintln!("focus-service: listening on {SERVICE_ADDR}");
+    eprintln!("yarita-service: listening on {SERVICE_ADDR}");
     for stream in listener.incoming().flatten() {
         let app = Arc::clone(&app);
         let clients = Arc::clone(&clients);
@@ -86,28 +86,28 @@ fn main() {
 
 #[cfg(windows)]
 fn site_blockers(hosts: HostsFileBlocker) -> SiteBlockers {
-    use focus_infrastructure::{BrowserPolicyBlocker, Registry};
+    use yarita_infrastructure::{BrowserPolicyBlocker, Registry};
     let registry = Registry::new(paths::registry_sandbox());
     SiteBlockers(vec![Box::new(hosts), Box::new(BrowserPolicyBlocker::new(registry))])
 }
 
 #[cfg(not(windows))]
 fn site_blockers(hosts: HostsFileBlocker) -> SiteBlockers {
-    SiteBlockers(vec![Box::new(hosts) as Box<dyn focus_application::ports::SiteBlocker>])
+    SiteBlockers(vec![Box::new(hosts) as Box<dyn yarita_application::ports::SiteBlocker>])
 }
 
 /// Blocking at launch stops most apps from opening at all; closing running
 /// processes catches the rest (renamed exes, apps open before the session).
 #[cfg(windows)]
 fn app_blockers() -> AppBlockers {
-    use focus_infrastructure::{LaunchBlocker, Registry};
+    use yarita_infrastructure::{LaunchBlocker, Registry};
     let mut blockers: Vec<Box<dyn AppBlocker>> = Vec::new();
     match std::env::current_exe() {
         Ok(me) => {
             let registry = Registry::new(paths::registry_sandbox());
             blockers.push(Box::new(LaunchBlocker::new(registry, &me)));
         }
-        Err(e) => eprintln!("focus-service: launch blocking off, can't find own path ({e})"),
+        Err(e) => eprintln!("yarita-service: launch blocking off, can't find own path ({e})"),
     }
     blockers.push(Box::new(ProcessBlocker::new()));
     AppBlockers(blockers)
@@ -134,9 +134,9 @@ fn keep_ui_open(app: &SharedApp, clients: &AtomicUsize) {
         if missing < UI_GRACE {
             continue;
         }
-        eprintln!("focus-service: strict session without a UI, reopening it");
+        eprintln!("yarita-service: strict session without a UI, reopening it");
         if let Err(e) = Command::new(&ui).spawn() {
-            eprintln!("focus-service: cannot reopen the UI: {e}");
+            eprintln!("yarita-service: cannot reopen the UI: {e}");
         }
         missing = Duration::ZERO;
         thread::sleep(UI_STARTUP);
@@ -144,7 +144,7 @@ fn keep_ui_open(app: &SharedApp, clients: &AtomicUsize) {
 }
 
 fn ui_path() -> Option<PathBuf> {
-    let name = if cfg!(windows) { "focus-ui.exe" } else { "focus-ui" };
+    let name = if cfg!(windows) { "yarita.exe" } else { "yarita" };
     let path = std::env::current_exe().ok()?.with_file_name(name);
     path.exists().then_some(path)
 }
@@ -167,6 +167,6 @@ fn lock(app: &SharedApp) -> std::sync::MutexGuard<'_, FocusApp> {
 }
 
 fn fail(msg: &str) -> ! {
-    eprintln!("focus-service: {msg}");
+    eprintln!("yarita-service: {msg}");
     process::exit(1);
 }

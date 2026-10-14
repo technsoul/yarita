@@ -1,7 +1,7 @@
 //! Runs several blockers as one, so each OS mechanism stays its own adapter.
 
-use focus_application::ports::{AppBlocker, PortError, SiteBlocker};
-use focus_domain::blocklist::{AppName, Site};
+use yarita_application::ports::{AppBlocker, PortError, SiteBlocker};
+use yarita_domain::blocklist::{AppName, Site};
 
 /// Every blocker runs even if an earlier one fails; the first error is returned.
 fn run_all<B: ?Sized, T>(
@@ -30,6 +30,13 @@ impl SiteBlocker for SiteBlockers {
 
     fn unblock_all(&mut self) -> Result<(), PortError> {
         run_all(&mut self.0, |b| b.unblock_all()).1.map_or(Ok(()), Err)
+    }
+
+    fn bypassing_apps(&self) -> Vec<AppName> {
+        let mut apps: Vec<AppName> = self.0.iter().flat_map(|b| b.bypassing_apps()).collect();
+        apps.sort();
+        apps.dedup();
+        apps
     }
 }
 

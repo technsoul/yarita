@@ -1,5 +1,5 @@
-use focus_application::ports::Clock;
-use focus_domain::Timestamp;
+use yarita_application::ports::Clock;
+use yarita_domain::Timestamp;
 
 pub struct SystemClock;
 

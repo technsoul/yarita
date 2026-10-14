@@ -1,12 +1,12 @@
 [package]
-name = "focus-service"
+name = "yarita-service"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-focus-application = { version = "0.1.0", path = "../application" }
-focus-infrastructure = { version = "0.1.0", path = "../infrastructure" }
-focus-protocol = { version = "0.1.0", path = "../protocol" }
+yarita-application = { version = "0.1.0", path = "../application" }
+yarita-infrastructure = { version = "0.1.0", path = "../infrastructure" }
+yarita-protocol = { version = "0.1.0", path = "../protocol" }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61.2", features = ["Win32_UI_WindowsAndMessaging"] }

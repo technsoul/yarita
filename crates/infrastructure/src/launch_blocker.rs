@@ -2,7 +2,7 @@
 //!
 //! For each blocked `name.exe`, the blocker sets a `Debugger` value under
 //! `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\name.exe`.
-//! Windows then starts `focus-service.exe --blocked <path> …` instead of the
+//! Windows then starts `yarita-service.exe --blocked <path> …` instead of the
 //! app, which shows a message and exits, so the app never opens.
 //!
 //! It only matches the file name, so a renamed exe gets through; the process
@@ -10,18 +10,18 @@
 //! so only the `Debugger` value and a marker value are touched, and an app
 //! that already has someone else's debugger is left alone.
 
-use focus_domain::blocklist::AppName;
+use yarita_domain::blocklist::AppName;
 
-/// Command-line flag that runs `focus-service` as the "app blocked" helper.
+/// Command-line flag that runs `yarita-service` as the "app blocked" helper.
 pub const BLOCKED_FLAG: &str = "--blocked";
 
 /// Programs that must never be blocked: Windows itself, the shells used to
-/// start the service, regedit (to recover by hand), and Focus Timer.
+/// start the service, regedit (to recover by hand), and Yarita.
 const PROTECTED: &[&str] = &[
     "csrss", "dwm", "explorer", "fontdrvhost", "lsass", "services", "sihost", "smss", "svchost",
     "taskhostw", "wininit", "winlogon", "logonui", "userinit", "ctfmon", "conhost", "consent",
     "runtimebroker", "searchhost", "startmenuexperiencehost", "shellexperiencehost",
-    "powershell", "pwsh", "cmd", "regedit", "focus-service", "focus-ui",
+    "powershell", "pwsh", "cmd", "regedit", "yarita-service", "yarita",
 ];
 
 /// The IFEO subkey for `app`, or `None` if it must not be blocked.
@@ -41,15 +41,15 @@ mod imp {
     use std::collections::BTreeSet;
     use std::path::Path;
 
-    use focus_application::ports::{AppBlocker, PortError};
-    use focus_domain::blocklist::AppName;
+    use yarita_application::ports::{AppBlocker, PortError};
+    use yarita_domain::blocklist::AppName;
 
     use super::{BLOCKED_FLAG, exe_key_name};
     use crate::registry::{self, Registry, View};
 
     const IFEO: &str = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
     const DEBUGGER: &str = "Debugger";
-    const MARKER: &str = "FocusTimerBlock";
+    const MARKER: &str = "YaritaBlock";
     /// 32-bit programs (Steam, for one) read the 32-bit view when they start an app.
     const VIEWS: [View; 2] = [View::Native, View::Wow32];
 
@@ -179,7 +179,7 @@ mod tests {
 
     #[test]
     fn never_blocks_system_or_own_programs() {
-        for name in ["explorer", "Explorer.exe", "svchost", "powershell", "focus-service", "regedit"] {
+        for name in ["explorer", "Explorer.exe", "svchost", "powershell", "yarita-service", "regedit"] {
             assert_eq!(exe_key_name(&AppName::parse(name).unwrap()), None, "{name}");
         }
     }

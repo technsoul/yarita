@@ -3,9 +3,9 @@
 
 use std::path::PathBuf;
 
-/// `FOCUS_HOSTS_FILE` overrides the system hosts file.
+/// `YARITA_HOSTS_FILE` overrides the system hosts file.
 pub fn hosts_file() -> (PathBuf, bool) {
-    if let Some(p) = std::env::var_os("FOCUS_HOSTS_FILE") {
+    if let Some(p) = std::env::var_os("YARITA_HOSTS_FILE") {
         return (PathBuf::from(p), false);
     }
     #[cfg(windows)]
@@ -18,28 +18,28 @@ pub fn hosts_file() -> (PathBuf, bool) {
     (path, true)
 }
 
-/// Machine-wide state directory (admin-only by default). `FOCUS_DATA_DIR` overrides it.
+/// Machine-wide state directory (admin-only by default). `YARITA_DATA_DIR` overrides it.
 pub fn data_dir() -> PathBuf {
-    if let Some(p) = std::env::var_os("FOCUS_DATA_DIR") {
+    if let Some(p) = std::env::var_os("YARITA_DATA_DIR") {
         return PathBuf::from(p);
     }
     #[cfg(windows)]
     {
         let root = std::env::var_os("ProgramData").unwrap_or_else(|| r"C:\ProgramData".into());
-        PathBuf::from(root).join("FocusTimer")
+        PathBuf::from(root).join("yarita")
     }
     #[cfg(target_os = "macos")]
     {
-        PathBuf::from("/Library/Application Support/FocusTimer")
+        PathBuf::from("/Library/Application Support/yarita")
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        PathBuf::from("/var/lib/focus-timer")
+        PathBuf::from("/var/lib/yarita")
     }
 }
 
-/// `FOCUS_REGISTRY_SANDBOX` moves every registry write from `HKLM` to
+/// `YARITA_REGISTRY_SANDBOX` moves every registry write from `HKLM` to
 /// `HKCU\<value>`, where browsers and Windows don't look.
 pub fn registry_sandbox() -> Option<String> {
-    std::env::var("FOCUS_REGISTRY_SANDBOX").ok().filter(|s| !s.trim().is_empty())
+    std::env::var("YARITA_REGISTRY_SANDBOX").ok().filter(|s| !s.trim().is_empty())
 }

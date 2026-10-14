@@ -1,6 +1,6 @@
 use chrono::{Days, Local};
 use eframe::egui::{self, Align2, FontId, RichText, Sense, vec2};
-use focus_protocol::Snapshot;
+use yarita_protocol::Snapshot;
 
 use crate::theme;
 

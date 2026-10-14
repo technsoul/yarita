@@ -192,6 +192,39 @@ pub fn paint_icon(painter: &Painter, icon: Icon, rect: Rect, color: Color32) {
     }
 }
 
+/// Paints the app mark (assets/logo.svg, designed on a 200×200 grid), centered in `rect`.
+pub fn paint_logo(painter: &Painter, rect: Rect, color: Color32) {
+    let k = rect.width().min(rect.height()) / 200.0;
+    let o = rect.center() - vec2(100.0, 100.0) * k;
+    let p = |x: f32, y: f32| o + vec2(x, y) * k;
+    // Strokes have butt ends, so each end gets a dot to round it off.
+    let polyline = |pts: Vec<Pos2>, width: f32| {
+        for &end in [pts[0], pts[pts.len() - 1]].iter() {
+            painter.circle_filled(end, width * k / 2.0, color);
+        }
+        painter.add(Shape::line(pts, Stroke::new(width * k, color)));
+    };
+
+    let center = p(100.0, 100.0);
+    for (a, b) in [((64.0, 42.3), (139.0, 44.3)), ((165.7, 82.4), (134.0, 158.9)), ((66.0, 158.9), (36.1, 76.7))] {
+        let angle = |(x, y): (f32, f32)| (y - 100.0).atan2(x - 100.0);
+        let (start, mut end) = (angle(a), angle(b));
+        if end < start {
+            end += TAU;
+        }
+        let pts = (0..=24)
+            .map(|i| {
+                let t = start + (end - start) * i as f32 / 24.0;
+                center + vec2(t.cos(), t.sin()) * 68.0 * k
+            })
+            .collect();
+        polyline(pts, 12.0);
+    }
+    polyline(vec![p(47.6, 63.3), center, p(163.9, 55.2)], 14.0);
+    polyline(vec![center, p(100.0, 170.0)], 14.0);
+    painter.circle_filled(center, 8.5 * k, color);
+}
+
 fn interact(ui: &mut egui::Ui, size: Vec2, enabled: bool, label: &str) -> (Rect, Response) {
     let sense = if enabled { Sense::click() } else { Sense::hover() };
     let (rect, response) = ui.allocate_exact_size(size, sense);

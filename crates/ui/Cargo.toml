@@ -1,0 +1,23 @@
+[package]
+name = "focus-ui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4.45"
+eframe = "0.36.2"
+focus-protocol = { version = "0.1.0", path = "../protocol" }
+notify-rust = "4.18.2"
+
+[package.metadata.deb]
+name = "focus-timer"
+maintainer = "Eng-Abdelwahab-mo"
+copyright = "MIT"
+extended-description = "A minimal Pomodoro timer that blocks websites and apps while you focus."
+section = "utils"
+depends = "$auto"
+assets = [
+    ["target/release/focus-ui", "usr/bin/", "755"],
+    ["target/release/focus-service", "usr/bin/", "755"],
+    ["packaging/focus-timer.desktop", "usr/share/applications/", "644"],
+]

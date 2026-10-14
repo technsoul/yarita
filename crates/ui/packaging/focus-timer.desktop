@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Focus Timer
+Comment=Pomodoro timer that blocks websites and apps while you focus
+Exec=focus-ui
+Icon=appointment-soon
+Terminal=false
+Categories=Utility;

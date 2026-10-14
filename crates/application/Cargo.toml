@@ -1,0 +1,8 @@
+[package]
+name = "focus-application"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+focus-domain = { version = "0.1.0", path = "../domain" }
+focus-protocol = { version = "0.1.0", path = "../protocol" }
